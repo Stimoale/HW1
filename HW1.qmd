@@ -1,0 +1,110 @@
+---
+title: "HW1"
+date: today
+author: Fa-Hsiang Yin
+
+mainfont: "Microsoft JhengHei UI"
+toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(palmerpenguins)
+library(dplyr)
+library(ggplot2)
+library(Hmisc)
+theme_set(theme_minimal())
+```
+
+# Summary Staistic
+
+```{r}
+#| output: asis
+
+latex(describe(penguins_raw), file = "", caption.placement = "top")
+```
+
+# Missing Values
+
+```{r}
+#| output: asis
+library(Hmisc)
+library(DataExplorer)
+plot_missing(penguins_raw)
+```
+
+Note that the variable "Comment" is additional information for certain situations causing the missing values, we can just ignore it.
+
+We also notice that missing values can be roughly categorized into three situations as follows:
+
+1.  Missing body measurements : includes culmen length, culmen depth, flipper length and body mass.
+
+2.  Missing blood isotope measurement : missing delta 15 N or both delta 15 N and delta 13 C.
+
+3.  Missing gender info.
+
+When situation 1 occurs, situation 2 and 3 will also occur. (Comment: Adult not sampled.)
+
+```{r}
+mypenguins <- penguins_raw[,-17]
+```
+
+# Male v.s.Female: Body Measurement
+
+## Table1
+
+```{r}
+library(tidyverse)
+library(table1)
+pen_table<- mypenguins%>%
+            drop_na(Sex)%>%
+  `names<-`(replace(names(.),1:16,gsub(" ", "_",names(.),
+            fixed = TRUE)))%>%
+  `names<-`(replace(names(.),c(10,11,12,13,15,16),
+            c('Culmen_Length','Culmen_Depth',
+              'Flipper_Length','Body_Mass',
+              'Delta_15_N','Delta_13_C')))
+table1(~ Culmen_Length+Culmen_Depth+Flipper_Length+Body_Mass|Sex,pen_table)
+```
+
+## Graph
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+library(gapminder)
+library(dplyr)
+p1 <- ggplot(pen_table,aes(x = Sex,
+                           y = Culmen_Length,fill = Sex)) +
+      geom_boxplot() +
+      scale_y_continuous(name = "Culmen Length(mm)") +
+      scale_x_discrete( name = "Sex")
+p2 <- ggplot(pen_table,aes(x = Sex,
+                           y = Culmen_Depth,fill = Sex)) +
+      geom_boxplot() +
+      scale_y_continuous(name = "Culmen Depth(mm)") +
+      scale_x_discrete( name = "Sex")
+p3 <- ggplot(pen_table,aes(x = Sex,
+                           y = Flipper_Length,fill = Sex)) +
+      geom_boxplot() +
+      scale_y_continuous(name = "Flipper Length(mm)") +
+      scale_x_discrete( name = "Sex")
+p4 <- ggplot(pen_table,aes(x = Sex,
+                           y = Body_Mass,fill = Sex)) +
+      geom_boxplot() +
+      scale_y_continuous(name = "Body Mass(g)") +
+      scale_x_discrete( name = "Sex")
+grid.arrange(p1,p2,p3,p4,
+          ncol = 2, nrow = 2)
+```
+
+# Species v.s. Island
+
+```{r}
+p <- ggplot(data = mypenguins) +
+  geom_bar(mapping = aes(x = Island,fill = Species),position = "dodge")
+p
+```
