@@ -2,7 +2,11 @@
 title: "HW1"
 date: today
 author: Fa-Hsiang Yin
-
+format:
+ pdf:
+    include-in-header:
+      - text: |
+         \usepackage{setspace,relsize}
 mainfont: "Microsoft JhengHei UI"
 toc: true
 ---
@@ -67,7 +71,7 @@ pen_table<- mypenguins%>%
             c('Culmen_Length','Culmen_Depth',
               'Flipper_Length','Body_Mass',
               'Delta_15_N','Delta_13_C')))
-table1(~ Culmen_Length+Culmen_Depth+Flipper_Length+Body_Mass|Sex,pen_table)
+table1(~ Culmen_Length+Culmen_Depth+Flipper_Length+Body_Mass+Delta_15_N+Delta_13_C|Sex,pen_table)
 ```
 
 ## Graph
@@ -97,9 +101,21 @@ p4 <- ggplot(pen_table,aes(x = Sex,
       geom_boxplot() +
       scale_y_continuous(name = "Body Mass(g)") +
       scale_x_discrete( name = "Sex")
-grid.arrange(p1,p2,p3,p4,
-          ncol = 2, nrow = 2)
+p5 <- ggplot(pen_table,aes(x = Sex,
+                           y = Delta_15_N,fill = Sex)) +
+      geom_boxplot() +
+      scale_y_continuous(name = "Isotope:C13") +
+      scale_x_discrete( name = "Sex")
+p6 <- ggplot(pen_table,aes(x = Sex,
+                           y = Delta_13_C,fill = Sex)) +
+      geom_boxplot() +
+      scale_y_continuous(name = "Isotope:C13") +
+      scale_x_discrete( name = "Sex")
+grid.arrange(p1,p2,p3,p4,p5,p6,
+          ncol = 2, nrow = 3)
 ```
+
+We can see that the body measurements of male penguins appear to be larger than those of female penguins.
 
 # Species v.s. Island
 
@@ -108,3 +124,5 @@ p <- ggplot(data = mypenguins) +
   geom_bar(mapping = aes(x = Island,fill = Species),position = "dodge")
 p
 ```
+
+Of the three species, only the Adelie Penguin (Pygoscelis adeliae) has been observed on all three islands.
